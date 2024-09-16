@@ -2,9 +2,12 @@
   "name": "instrumented-dht-node",
   "version": "0.0.0",
   "description": "HyperDHT Node with Prometheus metrics",
-  "main": "index.js",
+  "main": "run.js",
   "scripts": {
     "test": "standard"
+  },
+  "bin": {
+    "dht-node": "./run.js"
   },
   "repository": {
     "type": "git",
@@ -18,6 +21,7 @@
   "homepage": "https://github.com/holepunchto/instrumented-dht-node#readme",
   "dependencies": {
     "dht-prom-client": "^0.0.1-alpha.10",
+    "graceful-goodbye": "^1.3.0",
     "hypercore-id-encoding": "^1.3.0",
     "hyperdht": "^6.16.5",
     "hyperdht-stats": "^1.0.0",

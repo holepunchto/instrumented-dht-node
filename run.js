@@ -2,8 +2,10 @@ const os = require('os')
 const promClient = require('prom-client')
 const idEnc = require('hypercore-id-encoding')
 const pino = require('pino')
-const instrument = require('./lib/instrument')
 const HyperDHT = require('hyperdht')
+const goodbye = require('graceful-goodbye')
+
+const instrument = require('./lib/instrument')
 
 function loadConfig () {
   const config = {
@@ -46,6 +48,20 @@ async function main () {
     prometheusAlias,
     prometheusSecret,
     prometheusServiceName
+  })
+
+  goodbye(async () => {
+    try {
+      logger.info('Shutting down')
+      await promRpcClient.close()
+      logger.info('Prom-rpc client shut down')
+      await dht.destroy()
+      logger.info('DHT shut down')
+    } catch (e) {
+      logger.error(`Error while shutting down ${e.stack}`)
+    }
+
+    logger.info('Fully shut down')
   })
 
   await promRpcClient.ready()
