@@ -1,0 +1,19 @@
+{
+  "name": "instrumented-dht-node",
+  "version": "0.0.0",
+  "description": "HyperDHT Node with Prometheus metrics",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/holepunchto/instrumented-dht-node.git"
+  },
+  "author": "Holepunch",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/holepunchto/instrumented-dht-node/issues"
+  },
+  "homepage": "https://github.com/holepunchto/instrumented-dht-node#readme"
+}
