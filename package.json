@@ -32,6 +32,7 @@
     "standard": "^17.1.2"
   },
   "optionalDependencies": {
-    "heapdump": "^0.3.15"
+    "heapdump": "^0.3.15",
+    "slab-hunter": "^1.1.0"
   }
 }

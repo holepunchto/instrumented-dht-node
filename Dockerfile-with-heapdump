@@ -3,7 +3,7 @@ FROM node:20
 
 RUN useradd -u 9814 --create-home instrumented-dht-node
 
-ENV DHT_NODE_SUPPORT_HEAPDUMPS=true
+ENV DHT_NODE_INSPECT_MEMORY=true
 
 COPY package-lock.json /home/instrumented-dht-node/package-lock.json
 COPY node_modules /home/instrumented-dht-node/node_modules
@@ -20,7 +20,7 @@ WORKDIR /home/instrumented-dht-node/
 RUN cd /home/instrumented-dht-node
 # Remove any potentially copied-in version (needs to be installed for this particular node version)
 RUN rm -r /home/instrumented-dht-node/node_modules/heapdump || true
-RUN npm i heapdump repl-swarm
+RUN npm i heapdump slab-hunter
 
 USER instrumented-dht-node
 

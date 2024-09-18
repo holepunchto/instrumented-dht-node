@@ -13,7 +13,7 @@ function loadConfig () {
   const config = {
     logLevel: process.env.DHT_NODE_LOG_LEVEL || 'info',
     port: parseInt(process.env.DHT_NODE_PORT || 0),
-    supportHeapdumps: process.env.DHT_NODE_SUPPORT_HEAPDUMPS === 'true'
+    inspectMemory: process.env.DHT_NODE_INSPECT_MEMORY === 'true'
   }
 
   config.prometheusServiceName = 'dht-node'
@@ -33,7 +33,7 @@ function loadConfig () {
 async function main () {
   const config = loadConfig()
 
-  const { logLevel, port, supportHeapdumps } = config
+  const { logLevel, port, inspectMemory } = config
   const {
     prometheusScraperPublicKey,
     prometheusAlias,
@@ -53,12 +53,20 @@ async function main () {
     prometheusServiceName
   })
 
-  if (supportHeapdumps) {
+  if (inspectMemory) {
     logger.warn('Enabling heap dumps (send a SIGUSR2 signal to trigger)')
     process.on('SIGUSR2', function () {
       writeHeapSnapshot(logger)
     })
+
+    logger.info('Posting slab-leak info every 15 minutes')
+    const setupSlabHunter = require('slab-hunter')
+    const getLeakStats = setupSlabHunter()
+    setInterval(() => {
+      logger.info(getLeakStats())
+    }, 1000 * 60 * 15)
   }
+
   goodbye(async () => {
     try {
       logger.info('Shutting down')
