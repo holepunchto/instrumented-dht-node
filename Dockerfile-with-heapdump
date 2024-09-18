@@ -1,0 +1,27 @@
+# TODO: multistage build, so the resulting image is small
+FROM node:20
+
+RUN useradd -u 9814 --create-home instrumented-dht-node
+
+ENV DHT_NODE_SUPPORT_HEAPDUMPS=true
+
+COPY package-lock.json /home/instrumented-dht-node/package-lock.json
+COPY node_modules /home/instrumented-dht-node/node_modules
+COPY lib /home/instrumented-dht-node/lib
+COPY package.json /home/instrumented-dht-node/package.json
+COPY run.js /home/instrumented-dht-node/run.js
+COPY LICENSE /home/instrumented-dht-node/LICENSE
+COPY NOTICE /home/instrumented-dht-node/NOTICE
+
+WORKDIR /home/instrumented-dht-node/
+
+# Heapdump uses native modules and it detects during the installation
+# which architecture it is on, so it can't be copied in like the others
+RUN cd /home/instrumented-dht-node
+# Remove any potentially copied-in version (needs to be installed for this particular node version)
+RUN rm -r /home/instrumented-dht-node/node_modules/heapdump || true
+RUN npm i heapdump repl-swarm
+
+USER instrumented-dht-node
+
+ENTRYPOINT ["node", "/home/instrumented-dht-node/run.js"]

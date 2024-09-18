@@ -1,4 +1,6 @@
 const os = require('os')
+const fs = require('fs')
+const path = require('path')
 const promClient = require('prom-client')
 const idEnc = require('hypercore-id-encoding')
 const pino = require('pino')
@@ -10,7 +12,8 @@ const instrument = require('./lib/instrument')
 function loadConfig () {
   const config = {
     logLevel: process.env.DHT_NODE_LOG_LEVEL || 'info',
-    port: parseInt(process.env.DHT_NODE_PORT || 0)
+    port: parseInt(process.env.DHT_NODE_PORT || 0),
+    supportHeapdumps: process.env.DHT_NODE_SUPPORT_HEAPDUMPS === 'true'
   }
 
   config.prometheusServiceName = 'dht-node'
@@ -30,7 +33,7 @@ function loadConfig () {
 async function main () {
   const config = loadConfig()
 
-  const { logLevel, port } = config
+  const { logLevel, port, supportHeapdumps } = config
   const {
     prometheusScraperPublicKey,
     prometheusAlias,
@@ -50,6 +53,12 @@ async function main () {
     prometheusServiceName
   })
 
+  if (supportHeapdumps) {
+    logger.warn('Enabling heap dumps (send a SIGUSR2 signal to trigger)')
+    process.on('SIGUSR2', function () {
+      writeHeapSnapshot(logger)
+    })
+  }
   goodbye(async () => {
     try {
       logger.info('Shutting down')
@@ -69,6 +78,26 @@ async function main () {
 
   logger.info(`Instrumented dht node listening at ${dht.host}:${dht.port} (firewalled: ${dht.firewalled})`)
   logger.info(`Public key: ${idEnc.normalize(dht.defaultKeyPair.publicKey)}`)
+}
+
+function writeHeapSnapshot (logger) {
+  const heapdump = require('heapdump')
+
+  const dir = '/tmp/heapdumps'
+  // recursive: true is an easy way to avoid errors when the dir already exists
+  fs.mkdirSync(dir, { recursive: true })
+
+  const currentTime = (new Date()).toISOString()
+  const loc = path.join(dir, `dht-node-${currentTime}.heapsnapshot`)
+  logger.warn(`Writing heap snapshot to ${loc}`)
+
+  heapdump.writeSnapshot(loc, (err, resLoc) => {
+    if (err) {
+      logger.error(`Error while writing heap snapshot: ${err}`)
+      return
+    }
+    logger.info(`Finished writing heap snapshot to ${resLoc}`)
+  })
 }
 
 main()
