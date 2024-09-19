@@ -3,7 +3,7 @@ FROM node:20
 
 RUN useradd -u 9814 --create-home instrumented-dht-node
 
-ENV DHT_NODE_INSPECT_MEMORY=true
+ENV DHT_NODE_SUPPORT_HEAPDUMPS=true
 
 COPY package-lock.json /home/instrumented-dht-node/package-lock.json
 COPY node_modules /home/instrumented-dht-node/node_modules
