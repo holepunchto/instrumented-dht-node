@@ -16,11 +16,13 @@ npm i -g instrumented-dht-node
 
 ### Docker
 
+```
 docker run --network=host \
 --env DHT_NODE_PROMETHEUS_ALIAS=some-unique-alias \
 --env DHT_NODE_PROMETHEUS_SECRET=the-prometheus-secret \
 --env DHT_NODE_PROMETHEUS_SCRAPER_PUBLIC_KEY=the-prometheus-public-key \
 ghcr.io/holepunchto/instrumented-dht-node
+```
 
 Optionally set the `DHT_NODE_PORT` env var for the DHT to listen on, if that port is unfirewalled.
 
