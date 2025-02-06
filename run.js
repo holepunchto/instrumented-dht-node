@@ -39,7 +39,7 @@ function loadConfig () {
 async function main () {
   const config = loadConfig()
 
-  const { logLevel, port, host, huntSlabs, supportHeapdumps, bootstrap, isBootstrap, ephemeral } = config
+  const { logLevel, port, host, huntSlabs, supportHeapdumps, bootstrap, isBootstrap, ephemeral, firewalled } = config
   const {
     prometheusScraperPublicKey,
     prometheusAlias,
@@ -55,7 +55,7 @@ async function main () {
     logger.info('Setting up a new bootstrap node')
     dht = HyperDHT.bootstrapper(port, host)
   } else {
-    dht = new HyperDHT({ port, host, bootstrap, ephemeral })
+    dht = new HyperDHT({ port, host, bootstrap, ephemeral, firewalled })
   }
 
   const promRpcClient = instrument(logger, dht, {
