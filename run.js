@@ -1,7 +1,6 @@
 const os = require('os')
 const fs = require('fs')
 const path = require('path')
-const promClient = require('prom-client')
 const idEnc = require('hypercore-id-encoding')
 const pino = require('pino')
 const HyperDHT = require('hyperdht')
@@ -58,7 +57,7 @@ async function main () {
   }
 
   const dhtPromClient = instrument({
-    dht,
+    dht: new HyperDHT(), // We might be running on a separate DHT, but the metrics server lives on the mainline one
     prometheusAlias,
     scraperPublicKey: prometheusScraperPublicKey,
     scraperSecret: prometheusSecret,
