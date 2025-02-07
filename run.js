@@ -13,9 +13,14 @@ function loadConfig () {
   const config = {
     logLevel: process.env.DHT_NODE_LOG_LEVEL || 'info',
     port: parseInt(process.env.DHT_NODE_PORT || 0),
+    host: process.env.DHT_NODE_HOST || undefined,
     huntSlabs: process.env.DHT_NODE_HUNT_SLABS === 'true',
-    supportHeapdumps: process.env.DHT_NODE_SUPPORT_HEAPDUMPS === 'true'
+    supportHeapdumps: process.env.DHT_NODE_SUPPORT_HEAPDUMPS === 'true',
+    bootstrap: process.env.DHT_NODE_BOOTSTRAPS ? [process.env.DHT_NODE_BOOTSTRAPS.split(',')] : undefined,
+    isBootstrap: process.env.DHT_NODE_IS_BOOTSTRAP === 'true',
+    ephemeral: process.env.DHT_NODE_EPHEMERAL === 'true'
   }
+  config.firewalled = config.port !== 0 // since it makes no sense to specify a firewalled port
 
   config.prometheusServiceName = 'dht-node'
   config.prometheusAlias = process.env.DHT_NODE_PROMETHEUS_ALIAS || `dht-node-${os.hostname()}`.replace(' ', '-')
@@ -34,7 +39,7 @@ function loadConfig () {
 async function main () {
   const config = loadConfig()
 
-  const { logLevel, port, huntSlabs, supportHeapdumps } = config
+  const { logLevel, port, host, huntSlabs, supportHeapdumps, bootstrap, isBootstrap, ephemeral, firewalled } = config
   const {
     prometheusScraperPublicKey,
     prometheusAlias,
@@ -44,7 +49,14 @@ async function main () {
 
   const logger = pino({ level: logLevel })
 
-  const dht = new HyperDHT({ port })
+  let dht = null
+  if (bootstrap) logger.info(`Using custom bootstrap ${bootstrap}`)
+  if (isBootstrap) {
+    logger.info('Setting up a new bootstrap node')
+    dht = HyperDHT.bootstrapper(port, host)
+  } else {
+    dht = new HyperDHT({ port, host, bootstrap, ephemeral, firewalled })
+  }
 
   const promRpcClient = instrument(logger, dht, {
     promClient,
