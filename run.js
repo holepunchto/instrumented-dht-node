@@ -6,8 +6,7 @@ const idEnc = require('hypercore-id-encoding')
 const pino = require('pino')
 const HyperDHT = require('hyperdht')
 const goodbye = require('graceful-goodbye')
-
-const instrument = require('./lib/instrument')
+const instrument = require('hyper-instrument')
 
 function loadConfig () {
   const config = {
@@ -58,13 +57,15 @@ async function main () {
     dht = new HyperDHT({ port, host, bootstrap, ephemeral, firewalled })
   }
 
-  const promRpcClient = instrument(logger, dht, {
-    promClient,
-    prometheusScraperPublicKey,
+  const dhtPromClient = instrument({
+    dht,
     prometheusAlias,
-    prometheusSecret,
+    scraperPublicKey: prometheusScraperPublicKey,
+    scraperSecret: prometheusSecret,
     prometheusServiceName
   })
+
+  dhtPromClient.registerLogger(logger)
 
   if (supportHeapdumps) {
     logger.warn('Enabling heap dumps (send a SIGUSR2 signal to trigger)')
@@ -84,7 +85,7 @@ async function main () {
   goodbye(async () => {
     try {
       logger.info('Shutting down')
-      await promRpcClient.close()
+      await dhtPromClient.close()
       logger.info('Prom-rpc client shut down')
       await dht.destroy()
       logger.info('DHT shut down')
@@ -95,7 +96,7 @@ async function main () {
     logger.info('Fully shut down')
   })
 
-  await promRpcClient.ready()
+  await dhtPromClient.ready()
   await dht.ready()
 
   logger.info(`Instrumented dht node listening at ${dht.host}:${dht.port} (firewalled: ${dht.firewalled})`)
