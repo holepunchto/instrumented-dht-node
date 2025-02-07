@@ -10,7 +10,7 @@
     "run.js"
   ],
   "bin": {
-    "dht-node": "./run.js"
+    "dht-node": "run.js"
   },
   "repository": {
     "type": "git",
