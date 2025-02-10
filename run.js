@@ -55,7 +55,6 @@ async function main () {
     logger.info('Setting up a new bootstrap node')
     dht = HyperDHT.bootstrapper(port, host)
   } else {
-    logger.info(`Using bootstrap ${bootstrap}`)
     dht = new HyperDHT({ port, host, bootstrap, ephemeral, firewalled })
   }
 
