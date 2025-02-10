@@ -1,6 +1,6 @@
 {
   "name": "instrumented-dht-node",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "HyperDHT Node with Prometheus metrics",
   "main": "run.js",
   "scripts": {
