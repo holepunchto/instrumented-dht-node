@@ -59,7 +59,8 @@ async function main () {
   }
 
   const dhtPromClient = instrument({
-    dht: new HyperDHT(), // We might be running on a separate DHT, but the metrics server lives on the mainline one
+    dht,
+    scraperDht: new HyperDHT(), // We might be running on a separate DHT, but the metrics server lives on the mainline one
     prometheusAlias,
     scraperPublicKey: prometheusScraperPublicKey,
     scraperSecret: prometheusSecret,
