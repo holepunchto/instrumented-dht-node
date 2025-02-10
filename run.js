@@ -16,7 +16,7 @@ function loadConfig () {
     host: process.env.DHT_NODE_HOST || undefined,
     huntSlabs: process.env.DHT_NODE_HUNT_SLABS === 'true',
     supportHeapdumps: process.env.DHT_NODE_SUPPORT_HEAPDUMPS === 'true',
-    bootstrap: process.env.DHT_NODE_BOOTSTRAPS ? [process.env.DHT_NODE_BOOTSTRAPS.split(',')] : undefined,
+    bootstrap: process.env.DHT_NODE_BOOTSTRAPS ? process.env.DHT_NODE_BOOTSTRAPS.split(',') : undefined,
     isBootstrap: process.env.DHT_NODE_IS_BOOTSTRAP === 'true',
     ephemeral: process.env.DHT_NODE_EPHEMERAL === 'true'
   }
@@ -55,6 +55,7 @@ async function main () {
     logger.info('Setting up a new bootstrap node')
     dht = HyperDHT.bootstrapper(port, host)
   } else {
+    logger.info(`Using bootstrap ${bootstrap}`)
     dht = new HyperDHT({ port, host, bootstrap, ephemeral, firewalled })
   }
 
