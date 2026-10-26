@@ -7,7 +7,7 @@ const idEnc = require('hypercore-id-encoding')
 const pino = require('pino')
 const HyperDHT = require('hyperdht')
 const goodbye = require('graceful-goodbye')
-const instrument = require('hyper-instrument')
+const HyperInstrument = require('hyper-instrument')
 
 function loadConfig () {
   const config = {
@@ -58,9 +58,8 @@ async function main () {
     dht = new HyperDHT({ port, host, bootstrap, ephemeral, firewalled })
   }
 
-  const dhtPromClient = instrument({
+  const dhtPromClient = new HyperInstrument({
     dht,
-    scraperDht: new HyperDHT(), // We might be running on a separate DHT, but the metrics server lives on the mainline one
     prometheusAlias,
     scraperPublicKey: prometheusScraperPublicKey,
     scraperSecret: prometheusSecret,
